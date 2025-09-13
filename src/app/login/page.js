@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../utils/supabaseClient";
 import Link from "next/link";
@@ -12,13 +12,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        router.push("/");
-      }
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) router.push("/");
     };
-    checkSession();
+    checkUser();
   }, [router]);
 
   const handleLogin = async (e) => {
@@ -27,11 +27,8 @@ export default function LoginPage() {
       email,
       password,
     });
-    if (error) {
-      setErrorMsg(error.message);
-    } else {
-      router.push("/");
-    }
+    if (error) setErrorMsg(error.message);
+    else router.push("/");
   };
 
   return (
@@ -43,24 +40,24 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Login</h1>
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
         <input
           type="password"
-          placeholder="Enter your password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
         {errorMsg && <p className="text-red-600 text-sm mb-4">{errorMsg}</p>}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded transition duration-200"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded"
         >
           Login
         </button>

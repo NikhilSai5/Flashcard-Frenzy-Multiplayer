@@ -9,19 +9,20 @@ export default function JoinGame() {
   const router = useRouter();
 
   const joinGame = async () => {
-    const user = supabase.auth.user();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError) return alert(userError.message);
 
-    // Check if game exists
     const { data: game, error } = await supabase
       .from("games")
       .select("*")
       .eq("id", gameId)
       .single();
-
     if (error) return alert(error.message);
     if (game.status !== "waiting") return alert("Game already started");
 
-    // Add player
     await supabase.from("players").insert({
       game_id: gameId,
       user_id: user.id,
@@ -32,7 +33,7 @@ export default function JoinGame() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4 text-black">
       <input
         type="text"
         placeholder="Enter Game ID"
@@ -42,7 +43,7 @@ export default function JoinGame() {
       />
       <button
         onClick={joinGame}
-        className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+        className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700"
       >
         Join Game
       </button>

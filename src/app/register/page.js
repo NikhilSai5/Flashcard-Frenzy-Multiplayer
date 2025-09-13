@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../utils/supabaseClient";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -11,15 +11,21 @@ export default function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) router.push("/");
+    };
+    checkUser();
+  }, [router]);
+
   const handleRegister = async (e) => {
     e.preventDefault();
     const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setErrorMsg(error.message);
-    } else {
-      alert("Registration successful! Please log in.");
-      router.push("/login");
-    }
+    if (error) setErrorMsg(error.message);
+    else router.push("/login");
   };
 
   return (
@@ -31,24 +37,24 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Register</h1>
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
         <input
           type="password"
-          placeholder="Enter your password"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
         {errorMsg && <p className="text-red-600 text-sm mb-4">{errorMsg}</p>}
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded transition duration-200"
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded"
         >
           Register
         </button>
